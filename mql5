@@ -1,0 +1,67 @@
+
+// Developer: Forex Robot Easy Team
+// Developer's Site: forexroboteasy.com
+// Program Name: Golden Lotus
+
+// Include necessary libraries and classes
+#include <Trade/Trade.mqh>
+#include <Timeseries/Timeseries.mqh>
+
+// Define constant variables
+#define LOT_SIZE 0.1
+#define TAKE_PROFIT 100
+#define STOP_LOSS 50
+#define TRAILING_STOP 30
+
+// Define trading function
+void TradeForex()
+{
+   // Initialize Trade and Timeseries classes
+   CTrade trade;
+   CTimeseries series;
+
+   // Get the current symbol and timeframe
+   string symbol = trade.Symbol();
+   ENUM_TIMEFRAMES timeframe = trade.Period();
+
+   // Get the current market price
+   double currentPrice = trade.MarketInfo(symbol, MODE_BID);
+
+   // Place a buy order
+   trade.Buy(symbol, LOT_SIZE, currentPrice, STOP_LOSS, TAKE_PROFIT, TRAILING_STOP, 'Buy Order');
+
+   // Wait for the order to close
+   while (trade.PositionGetInteger(POSITION_TYPE) != POSITION_TYPE_BUY)
+   {
+      Sleep(1000);
+   }
+
+   // Place a sell order
+   trade.Sell(symbol, LOT_SIZE, currentPrice, STOP_LOSS, TAKE_PROFIT, TRAILING_STOP, 'Sell Order');
+
+   // Wait for the order to close
+   while (trade.PositionGetInteger(POSITION_TYPE) != POSITION_TYPE_SELL)
+   {
+      Sleep(1000);
+   }
+
+   // Print the final account balance
+   double accountBalance = trade.AccountInfoDouble(ACCOUNT_BALANCE);
+   Print('Final Account Balance: ', accountBalance);
+}
+
+// Entry point of the program
+int OnInit()
+{
+   // Call the trading function
+   TradeForex();
+
+   return(INIT_SUCCEEDED);
+}
+
+// Program termination function
+void OnDeinit(const int reason)
+{
+   // Print the reason for program termination
+   Print('Program Terminated. Reason: ', reason);
+}
